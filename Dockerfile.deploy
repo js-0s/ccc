@@ -1,0 +1,72 @@
+#
+# DockerFile for Deployment
+
+#
+# Production Build
+#
+
+# Install dependencies only when needed
+FROM node:20-alpine3.20 AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+RUN npm install -g pnpm
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+COPY prisma ./
+RUN pnpm install
+# --frozen-lockfile
+
+
+# Rebuild the source code only when needed
+FROM node:20-alpine3.20 AS builder
+RUN npm install -g pnpm
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+#
+# sourcecode
+#
+COPY . .
+# its content contains non-secrets from .env.${environment}
+COPY .env.build /app/.env.build
+# .env.production is loaded in util/scripts and expected to have the variables of
+# environment
+RUN . ./.env.build \
+ && cat .env.build >> .env \
+ && SKIP_ENV_VALIDATION=YES pnpm run build \
+ && pnpm install --prod  --ignore-scripts
+ # --frozen-lockfile
+
+
+#
+# Production image, copy all the files and run next
+#
+FROM node:20-alpine3.20 AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+# RUN apk add --no-cache openssl
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# seed:
+# 1. disable the --prod install in builder
+# 2. copy /app to ./
+# COPY --from=builder /app ./
+# 3. change CMD to start-seed script
+
+COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/src/env.js ./src/env.js
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/.env ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/prisma ./prisma
+
+USER nextjs
+
+EXPOSE 80
+
+ENV PORT=80
+ENV NODE_ENV=production
+CMD ["npm", "run", "start"]

@@ -1,0 +1,56 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum EnumUserRole {
+  admin
+  user
+}
+
+model Coordinate {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  longitude Float?
+  latitude  Float?
+  altitude  Float?
+  accuracy  Float? // null = web = unknown, smaller numbers are better
+
+  // reverse relationships 1-n
+  User User[] @relation(name: "userLocation")
+}
+
+model User {
+  id            String      @id() @default(cuid())
+  name          String?
+  username      String?     @unique()
+  email         String?     @unique()
+  createdAt     DateTime    @default(now())
+  emailVerified DateTime?
+  lastSigninAt  DateTime?
+  prevSigninAt  DateTime?
+  lastSignoutAt DateTime?
+  phone         String?
+  location      Coordinate? @relation(fields: [locationId], references: [id], name: "userLocation")
+  locationId    String?
+
+  roles    EnumUserRole[]
+  password String?
+  image    String?
+
+  chains Chain[]
+}
+
+model Chain {
+  id          String    @id() @default(cuid())
+  chainId     String
+  publicKey   String
+  lastCheckAt DateTime?
+  lastBalance Int
+
+  User User[]
+}

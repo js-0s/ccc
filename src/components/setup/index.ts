@@ -1,0 +1,1 @@
+export { SetupLanding } from './landing';

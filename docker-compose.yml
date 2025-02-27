@@ -1,0 +1,62 @@
+networks:
+  extern-net:
+  ccc-net:
+services:
+  database:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: api
+    networks:
+      ccc-net:
+        aliases:
+          - database
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    networks:
+      ccc-net:
+        aliases:
+          - pgadmin
+
+  shell:
+    build:
+      context: .
+      target: devrunner
+    command: /bin/bash
+    depends_on:
+      - database
+    volumes:
+      - ./:/app
+      - ./dev_modules/node_modules:/app/node_modules
+      - ./dev_modules/yarn-cache:/usr/local/share/.cache/yarn
+      - ./dev_modules/regen:/root/.regen
+    networks:
+      ccc-net:
+        aliases:
+          - shell
+  # web3 coding challenge
+  ccc:
+    build:
+      context: .
+      target: devrunner
+    ports:
+      - "1918:3000"
+    depends_on:
+      - database
+    volumes:
+      - ./:/app
+      - ./dev_modules/node_modules:/app/node_modules
+      - ./dev_modules/pnpm_store:/app/.pnpm-store
+      - ./dev_modules/.next:/app/.next
+    networks:
+      ccc-net:
+        aliases:
+          - ccc-net
+      extern-net:
