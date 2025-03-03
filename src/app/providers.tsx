@@ -2,26 +2,30 @@
 
 import { SessionProvider } from 'next-auth/react';
 import type { ReactNode } from 'react';
-import { useSession } from 'next-auth/react';
-import { Web3ContextProvider } from '@/context';
+import { Web3ContextProvider, AppKitProvider } from '@/context';
 
 import { AlertDialogProvider } from '@/components/alert';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
-export function Providers({ children }: { children: ReactNode }) {
+export function Providers({
+  cookies,
+  children,
+}: {
+  cookies: string;
+  children: ReactNode;
+}) {
   return (
     <UIProviders>
       <SessionProvider>
-        <WithSessionProviders>{children}</WithSessionProviders>
+        <WithSessionProviders>
+          <AppKitProvider cookies={cookies}>{children}</AppKitProvider>
+        </WithSessionProviders>
       </SessionProvider>
     </UIProviders>
   );
 }
 export function WithSessionProviders({ children }: { children: ReactNode }) {
-  const { data: session } = useSession();
-  return (
-    <Web3ContextProvider session={session}>{children}</Web3ContextProvider>
-  );
+  return <Web3ContextProvider>{children}</Web3ContextProvider>;
 }
 export function UIProviders({ children }: { children: ReactNode }) {
   return (
