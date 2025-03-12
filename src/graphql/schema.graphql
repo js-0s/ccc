@@ -16,7 +16,7 @@ type Chain {
   id: ID
 
   """Last known balance of the Chain Address."""
-  lastBalance: Int
+  lastBalance: String
 
   """Date and time when this Chain was last synced."""
   lastCheckAt: DateTime

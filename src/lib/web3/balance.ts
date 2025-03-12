@@ -38,7 +38,8 @@ export async function getBalance({
             .map(currency => currency.coinMinimalDenom)
             .includes(balance.denom)
         ) {
-          throw new IntegrityError('Received bad balance denom');
+          console.log(`Received bad balance denom ${balance.denom}`);
+          continue
         }
         sum += parseInt(balance.amount, 10); // ? BigInt
       }

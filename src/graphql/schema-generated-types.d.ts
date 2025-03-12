@@ -99,7 +99,6 @@ export interface NexusGenObjects {
   Chain: { // root type
     chainId?: string | null; // String
     id?: string | null; // ID
-    lastBalance?: number | null; // Int
     lastCheckAt?: NexusGenScalars['DateTime'] | null; // DateTime
     publicKey?: string | null; // String
   }
@@ -142,7 +141,7 @@ export interface NexusGenFieldTypes {
   Chain: { // field return type
     chainId: string | null; // String
     id: string | null; // ID
-    lastBalance: number | null; // Int
+    lastBalance: string | null; // String
     lastCheckAt: NexusGenScalars['DateTime'] | null; // DateTime
     publicKey: string | null; // String
   }
@@ -196,7 +195,7 @@ export interface NexusGenFieldTypeNames {
   Chain: { // field return type name
     chainId: 'String'
     id: 'ID'
-    lastBalance: 'Int'
+    lastBalance: 'String'
     lastCheckAt: 'DateTime'
     publicKey: 'String'
   }

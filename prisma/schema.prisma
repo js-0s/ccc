@@ -50,7 +50,7 @@ model Chain {
   chainId     String
   publicKey   String
   lastCheckAt DateTime?
-  lastBalance Int
+  lastBalance BigInt
 
   User User[]
 }

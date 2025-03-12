@@ -20,8 +20,11 @@ export const ChainType = objectType({
     t.string('publicKey', {
       description: 'Public key as received from the client-Chain.',
     });
-    t.int('lastBalance', {
+    t.string('lastBalance', {
       description: 'Last known balance of the Chain Address.',
+      resolve(parent,args,context){
+        return `${parent.lastBalance}`
+      }
     });
   },
 });
