@@ -17,18 +17,18 @@ import { SigningStargateClient } from '@cosmjs/stargate';
 
 const Web3Context = createContext();
 const getKeplrFromWindow = async (): Promise<Keplr> => {
-  if ((window as KeplrWindow).keplr) {
-    return (window as KeplrWindow).keplr;
+  if (window.keplr) {
+    return window.keplr;
   }
 
   if (document.readyState === 'complete') {
-    return (window as KeplrWindow).keplr;
+    return window.keplr;
   }
 
   return new Promise(resolve => {
     const documentStateChange = (event: ProgressEvent<Document>) => {
       if (event.target && event.target.readyState === 'complete') {
-        resolve((window as KeplrWindow).keplr);
+        resolve(window.keplr);
         document.removeEventListener('readystatechange', documentStateChange);
       }
     };
@@ -125,9 +125,7 @@ export function Web3ContextProvider({ children }) {
   const signDocument = useCallback(
     async (chain: ChainType, signDocument: unknown) => {
       try {
-        const offlineSigner = (window as KeplrWindow).getOfflineSigner(
-          chain.chainId,
-        );
+        const offlineSigner = window.getOfflineSigner(chain.chainId);
         const accounts = await offlineSigner.getAccounts();
 
         // Sign the transaction using Keplr
@@ -165,7 +163,7 @@ export function Web3ContextProvider({ children }) {
       message: string,
     ) => {
       try {
-        const offlineSigner = (window as KeplrWindow).getOfflineSigner(chainId);
+        const offlineSigner = window.getOfflineSigner(chainId);
         const accounts = await offlineSigner.getAccounts();
 
         const chain = getChainSettings({ chains, chainId });
@@ -206,7 +204,7 @@ export function Web3ContextProvider({ children }) {
   );
   const getPublicKey = useCallback(async ({ chainId }: { chainId: string }) => {
     try {
-      const offlineSigner = (window as KeplrWindow).getOfflineSigner(chainId);
+      const offlineSigner = window.getOfflineSigner(chainId);
       const accounts = await offlineSigner.getAccounts();
       const account = accounts[0];
 
