@@ -14,10 +14,10 @@ export type BalanceType = {
 };
 export async function getBalance({
   chain,
-  publicKey,
+  address,
 }: {
   chain: ChainType;
-  publicKey: string;
+  address: string;
 }) {
   const { createRPCQueryClient } = regen.ClientFactory;
   const client = await createRPCQueryClient({ rpcEndpoint: chain.rpc });
@@ -27,10 +27,10 @@ export async function getBalance({
   try {
     balance.denom = chain.currencies[0].coinMinimalDenom;
     let sum = 0;
-    let nextKey = publicKey;
-    while (typeof nextKey === 'string' && nextKey.length) {
+    let nextAddress = address;
+    while (typeof nextAddress === 'string' && nextAddress.length) {
       const balances = await client.cosmos.bank.v1beta1.allBalances({
-        address: nextKey,
+        address: nextAddress,
       });
       for (const balance of balances.balances) {
         if (
@@ -43,7 +43,7 @@ export async function getBalance({
         }
         sum += parseInt(balance.amount, 10); // ? BigInt
       }
-      nextKey = balances.pagination.nextKey;
+      nextAddress = balances.pagination.nextKey;
     }
     balance.amount = sum;
   } catch (error: unknown) {
@@ -60,10 +60,10 @@ export async function getBalance({
 }
 export async function getCosmosBalance({
   chain,
-  publicKey,
+  address,
 }: {
   chain: ChainType;
-  publicKey: string;
+  address: string;
 }): Promise<BalanceType> {
   try {
     const tendermint = await Tendermint34Client.connect(chain.rpc);
@@ -72,7 +72,7 @@ export async function getCosmosBalance({
     const bankQueryService = new QueryClientImpl(rpcClient);
 
     const { balance } = await bankQueryService.Balance({
-      address: publicKey,
+      address,
       denom: chain.currencies[0].coinMinimalDenom,
     });
     return {

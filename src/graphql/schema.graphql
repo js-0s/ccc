@@ -9,6 +9,9 @@ scalar BigInt
 A Chain is connected to a user and stores the public key along with the latest acquired balance
 """
 type Chain {
+  """Address as received from the client-Chain."""
+  address: String
+
   """chain identifier, should be connected with the client-Chain."""
   chainId: String
 
@@ -20,9 +23,6 @@ type Chain {
 
   """Date and time when this Chain was last synced."""
   lastCheckAt: DateTime
-
-  """Public key as received from the client-Chain."""
-  publicKey: String
 }
 
 """
@@ -99,7 +99,7 @@ type JSONResult {
 
 type Mutation {
   """Add a Chain for the user"""
-  addUserChain(chainId: String, publicKey: String): User
+  addUserChain(address: String, chainId: String): User
 
   """Broadcast a signed transaction to the network."""
   broadcastChainSignedTransaction(chainId: String!, signedTransactionBase64: String!): JSONResult

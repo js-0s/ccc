@@ -120,7 +120,7 @@ export function UserChains() {
             <TableRow key={chain.id ?? 0}>
               <TableCell className="font-medium">{chain.chainName}</TableCell>
               <TableCell className="max-w-[100px] overflow-hidden">
-                <span title={chain.publicKey}>{chain.publicKey}</span>
+                <span title={chain.address}>{chain.address}</span>
               </TableCell>
               <TableCell>
                 {

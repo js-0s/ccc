@@ -73,7 +73,7 @@ export function SignMessage({
         }
         const signedMessage = await signMessage(
           chain.chainId,
-          chain.publicKey,
+          chain.address,
           values.message,
         );
         await alert({
@@ -137,7 +137,7 @@ export function SignMessage({
           <DialogHeader>
             <DialogTitle>Sign Message</DialogTitle>
             <DialogDescription>
-              Sign message with chain {chain?.chainId}/{chain?.publicKey}. This
+              Sign message with chain {chain?.chainId}/{chain?.address}. This
               is only useful to proof ownership of a wallet.
             </DialogDescription>
           </DialogHeader>

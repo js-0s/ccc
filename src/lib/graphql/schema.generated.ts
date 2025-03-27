@@ -67,7 +67,6 @@ export const scalarsEnumsHash: ScalarsEnumsHash = {
   Decimal: true,
   Float: true,
   ID: true,
-  Int: true,
   JSON: true,
   String: true,
   Time: true,
@@ -75,11 +74,11 @@ export const scalarsEnumsHash: ScalarsEnumsHash = {
 export const generatedSchema = {
   Chain: {
     __typename: { __type: 'String!' },
+    address: { __type: 'String' },
     chainId: { __type: 'String' },
     id: { __type: 'ID' },
-    lastBalance: { __type: 'Int' },
+    lastBalance: { __type: 'String' },
     lastCheckAt: { __type: 'DateTime' },
-    publicKey: { __type: 'String' },
   },
   Coordinate: {
     __typename: { __type: 'String!' },
@@ -118,7 +117,7 @@ export const generatedSchema = {
     __typename: { __type: 'String!' },
     addUserChain: {
       __type: 'User',
-      __args: { chainId: 'String', publicKey: 'String' },
+      __args: { address: 'String', chainId: 'String' },
     },
     broadcastChainSignedTransaction: {
       __type: 'JSONResult',
@@ -158,6 +157,10 @@ export const generatedSchema = {
 export interface Chain {
   __typename?: 'Chain';
   /**
+   * Address as received from the client-Chain.
+   */
+  address?: Maybe<ScalarsEnums['String']>;
+  /**
    * chain identifier, should be connected with the client-Chain.
    */
   chainId?: Maybe<ScalarsEnums['String']>;
@@ -168,15 +171,11 @@ export interface Chain {
   /**
    * Last known balance of the Chain Address.
    */
-  lastBalance?: Maybe<ScalarsEnums['Int']>;
+  lastBalance?: Maybe<ScalarsEnums['String']>;
   /**
    * Date and time when this Chain was last synced.
    */
   lastCheckAt?: Maybe<ScalarsEnums['DateTime']>;
-  /**
-   * Public key as received from the client-Chain.
-   */
-  publicKey?: Maybe<ScalarsEnums['String']>;
 }
 
 /**
@@ -286,8 +285,8 @@ export interface Mutation {
    * Add a Chain for the user
    */
   addUserChain: (args?: {
+    address?: Maybe<ScalarsEnums['String']>;
     chainId?: Maybe<ScalarsEnums['String']>;
-    publicKey?: Maybe<ScalarsEnums['String']>;
   }) => Maybe<User>;
   /**
    * Broadcast a signed transaction to the network.

@@ -48,7 +48,7 @@ model User {
 model Chain {
   id          String    @id() @default(cuid())
   chainId     String
-  publicKey   String
+  address     String
   lastCheckAt DateTime?
   lastBalance BigInt
 

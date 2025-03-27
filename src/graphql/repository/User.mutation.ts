@@ -103,11 +103,11 @@ export async function updateRoles({ roles, ...context }: { roles: [string] }) {
 }
 export async function addChain({
   chainId,
-  publicKey,
+  address,
   ...context
 }: {
   chainId: string;
-  publicKey: string;
+  address: string;
 }) {
   const { db, session }: ContextType = context;
   const chains = await listChains({
@@ -116,7 +116,7 @@ export async function addChain({
   });
   if (Array.isArray(chains)) {
     for (const chain of chains) {
-      if (chain.chainId === chainId && chain.publicKey === publicKey) {
+      if (chain.chainId === chainId && chain.address === address) {
         throw new ParameterError('This chain is already part of your chains');
       }
     }
@@ -124,7 +124,7 @@ export async function addChain({
   return db.user.update({
     where: { id: session.user.id },
     data: {
-      chains: { create: { chainId, publicKey, lastBalance: 0 } },
+      chains: { create: { chainId, address, lastBalance: 0 } },
     },
   });
 }
@@ -179,7 +179,7 @@ export async function refreshChains({
       if (refreshChain.chainId.startsWith('regen')) {
         const balance = await getBalance({
           chain,
-          publicKey: refreshChain.publicKey,
+          address: refreshChain.address,
         });
 
         await db.chain.update({
@@ -192,7 +192,7 @@ export async function refreshChains({
       } else {
         const balance = await getCosmosBalance({
           chain,
-          publicKey: refreshChain.publicKey,
+          address: refreshChain.address,
         });
         await db.chain.update({
           where: { id: refreshChain.id },

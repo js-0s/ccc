@@ -97,10 +97,10 @@ export interface NexusGenScalars {
 
 export interface NexusGenObjects {
   Chain: { // root type
+    address?: string | null; // String
     chainId?: string | null; // String
     id?: string | null; // ID
     lastCheckAt?: NexusGenScalars['DateTime'] | null; // DateTime
-    publicKey?: string | null; // String
   }
   Coordinate: { // root type
     accuracy?: number | null; // Float
@@ -139,11 +139,11 @@ export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars
 
 export interface NexusGenFieldTypes {
   Chain: { // field return type
+    address: string | null; // String
     chainId: string | null; // String
     id: string | null; // ID
     lastBalance: string | null; // String
     lastCheckAt: NexusGenScalars['DateTime'] | null; // DateTime
-    publicKey: string | null; // String
   }
   Coordinate: { // field return type
     accuracy: number | null; // Float
@@ -193,11 +193,11 @@ export interface NexusGenFieldTypes {
 
 export interface NexusGenFieldTypeNames {
   Chain: { // field return type name
+    address: 'String'
     chainId: 'String'
     id: 'ID'
     lastBalance: 'String'
     lastCheckAt: 'DateTime'
-    publicKey: 'String'
   }
   Coordinate: { // field return type name
     accuracy: 'Float'
@@ -248,8 +248,8 @@ export interface NexusGenFieldTypeNames {
 export interface NexusGenArgTypes {
   Mutation: {
     addUserChain: { // args
+      address?: string | null; // String
       chainId?: string | null; // String
-      publicKey?: string | null; // String
     }
     broadcastChainSignedTransaction: { // args
       chainId: string; // String!

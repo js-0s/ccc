@@ -30,7 +30,7 @@ export function UserDataContextProvider({
         'location.longitude',
         'chains.id',
         'chains.chainId',
-        'chains.publicKey',
+        'chains.address',
         'chains.lastBalance',
         'chains.lastCheckAt',
         'lastSigninAt',
@@ -64,19 +64,19 @@ export function UserDataContextProvider({
           ({
             id,
             chainId,
-            publicKey,
+            address,
             lastBalance,
             lastCheckAt,
           }: {
             id: string;
             chainId: string;
-            publicKey: string;
+            address: string;
             lastBalance: number;
             lastCheckAt: Date;
           }) => ({
             id,
             chainId,
-            publicKey,
+            address,
             lastBalance,
             lastCheckAt,
           }),
@@ -127,8 +127,8 @@ export function UserDataContextProvider({
     },
   );
   const [addUserChain, { isLoading: addUserChainIsUpdating }] = useMutation(
-    (mutation, { chainId, publicKey }) => {
-      return mutation.addUserChain({ chainId, publicKey }).id;
+    (mutation, { chainId, address }) => {
+      return mutation.addUserChain({ chainId, address }).id;
     },
   );
   const [removeUserChain, { isLoading: removeUserChainIsUpdating }] =
@@ -249,10 +249,10 @@ export const useData = (): {
   }) => Promise<{ id: string }>;
   updateUserRoles: ({ args: { roles: string } }) => Promise<{ id: string }>;
   addUserChain: ({
-    args: { chainId: string, publicKey: string },
+    args: { chainId: string, address: string },
   }) => Promise<{ id: string }>;
   removeUserChain: ({
-    args: { chainId: string, publicKey: string },
+    args: { chainId: string, address: string },
   }) => Promise<{ id: string }>;
   refreshUserChains: ({
     args: {
@@ -282,7 +282,7 @@ export const useData = (): {
       {
         id: string;
         chainId: string;
-        publicKey: string;
+        address: string;
         lastCheckAt: Date;
         lastBalance: number;
       },

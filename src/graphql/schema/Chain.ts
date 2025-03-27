@@ -17,8 +17,8 @@ export const ChainType = objectType({
       description:
         'chain identifier, should be connected with the client-Chain.',
     });
-    t.string('publicKey', {
-      description: 'Public key as received from the client-Chain.',
+    t.string('address', {
+      description: 'Address as received from the client-Chain.',
     });
     t.string('lastBalance', {
       description: 'Last known balance of the Chain Address.',

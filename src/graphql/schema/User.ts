@@ -203,7 +203,7 @@ export const UserMutation = extendType({
       description: 'Add a Chain for the user',
       args: {
         chainId: stringArg(),
-        publicKey: stringArg(),
+        address: stringArg(),
       },
       shield: AuthRepository.updateAbility,
       resolve(

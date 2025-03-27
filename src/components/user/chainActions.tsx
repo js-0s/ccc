@@ -7,7 +7,7 @@ import { useData as useUserData } from './data';
 
 export function UserChainActions() {
   const { user, refreshUserChains, refetch, isUpdating } = useUserData();
-  const disabled = useMemo(
+  const refreshDisabled = useMemo(
     () => user.chains.length === 0 || isUpdating,
     [user, isUpdating],
   );
@@ -18,10 +18,10 @@ export function UserChainActions() {
 
   return (
     <>
-      <Button disabled={disabled} onClick={refresh}>
+      <Button disabled={refreshDisabled} onClick={refresh}>
         Refresh Balances
       </Button>
-      <SelectChain disabled={disabled} actionLabel={'Add More Chains'} />
+      <SelectChain disabled={isUpdating} actionLabel={'Add More Chains'} />
     </>
   );
 }

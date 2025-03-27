@@ -193,7 +193,7 @@ export function SendTokenKeplr({
         }
         await sendToken(
           chain.chainId,
-          chain.publicKey,
+          chain.address,
           convertedAmount,
           values.receiverAddress,
           values.message,

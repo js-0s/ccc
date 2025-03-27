@@ -88,7 +88,7 @@ export function SelectChain({
         }
         const selectedChainAddress = await selectChain(chainId);
         await addUserChain({
-          args: { chainId, publicKey: selectedChainAddress },
+          args: { chainId, address: selectedChainAddress },
         });
         await refreshUserChains({ args: { chainIdList: [] } });
         await refetch();

@@ -12,7 +12,7 @@ import Link from 'next/link';
 
 import { hardcodedChains } from '@/lib/web3/hardcodedChains';
 import { getChains, getChainSettings, type ChainType } from '@/lib/web3/chains';
-import type { Keplr, Window as KeplrWindow } from '@keplr-wallet/types';
+import type { Keplr } from '@keplr-wallet/types';
 import { SigningStargateClient } from '@cosmjs/stargate';
 
 const Web3Context = createContext();
@@ -106,12 +106,12 @@ export function Web3ContextProvider({ children }) {
     }
   }, []);
   const signMessage = useCallback(
-    async (chainId: string, publicKey: string, message: string) => {
+    async (chainId: string, address: string, message: string) => {
       try {
         const keplr = await getKeplrFromWindow();
         const signedMessage = await keplr.signArbitrary(
           chainId,
-          publicKey,
+          address,
           message,
         );
         return signedMessage;
@@ -157,7 +157,7 @@ export function Web3ContextProvider({ children }) {
   const sendToken = useCallback(
     async (
       chainId: string,
-      publicKey: string,
+      address: string,
       amount: number,
       receiverPublicKey: string,
       message: string,
@@ -270,9 +270,9 @@ export const useWeb3Context = (): {
   }>;
   sendToken: (
     chainId: string,
-    publicKey: string,
+    address: string,
     amount: number,
-    receiverPublicKey: string,
+    receiverAddress: string,
   ) => Promise<string>;
   getPublicKey: ({ chainId: string }) => Promise<Uint8Array>;
   chains: [ChainType];

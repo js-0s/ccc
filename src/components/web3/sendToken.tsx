@@ -204,7 +204,7 @@ export function SendToken({
         const signDoc = await requestAccountNumberAndSequence({
           args: {
             chainId: chain.chainId,
-            senderAddress: chain.publicKey,
+            senderAddress: chain.address,
           },
         });
         // ask keplr for the public key as uint8Array
@@ -216,8 +216,8 @@ export function SendToken({
         // compile the protoDocument
         const protoDoc = await createProtobufSignDocument({
           chain: chainSettings,
-          publicKey: publicKey,
-          senderAddress: chain.publicKey,
+          publicKey,
+          senderAddress: chain.address,
           receiverAddress: values.receiverAddress,
           message: values.message,
           amount: convertedAmount,
