@@ -1,12 +1,13 @@
 'use client';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
+import { hasProjectId } from '@/lib/appkit/config';
 
 export function SignInButtonClient({ session }) {
   if (session) {
     return (
       <>
-        <appkit-button />
+        {hasProjectId && <appkit-button />}
 
         <Link
           href={'/dashboard'}
@@ -21,7 +22,7 @@ export function SignInButtonClient({ session }) {
   }
   return (
     <>
-      <appkit-button />
+      {hasProjectId && <appkit-button />}
       <form
         action={async () => {
           await signIn(undefined, { callbackUrl: '/dashboard' });

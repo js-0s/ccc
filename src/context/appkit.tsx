@@ -1,6 +1,6 @@
 'use client';
 
-import { wagmiAdapter, projectId } from '@/lib/appkit/config';
+import { wagmiAdapter, projectId, hasProjectId } from '@/lib/appkit/config';
 import { siweConfig } from '@/lib/appkit/siwe-config';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createAppKit } from '@reown/appkit/react';
@@ -18,10 +18,6 @@ import { cookieToInitialState, WagmiProvider } from 'wagmi';
 // Set up queryClient
 const queryClient = new QueryClient();
 
-if (!projectId) {
-  throw new Error('Project ID is not defined');
-}
-
 // Set up metadata
 const metadata = {
   name: 'ccc',
@@ -31,18 +27,19 @@ const metadata = {
 };
 
 // // Create the modal
-createAppKit({
-  adapters: [wagmiAdapter],
-  projectId,
-  networks: [mainnet, arbitrum, avalanche, base, optimism, polygon],
-  defaultNetwork: mainnet,
-  metadata: metadata,
-  features: {
-    analytics: true,
-  },
-  siweConfig,
-});
-
+if (hasProjectId) {
+  createAppKit({
+    adapters: [wagmiAdapter],
+    projectId,
+    networks: [mainnet, arbitrum, avalanche, base, optimism, polygon],
+    defaultNetwork: mainnet,
+    metadata: metadata,
+    features: {
+      analytics: true,
+    },
+    siweConfig,
+  });
+}
 export function AppKitProvider({
   children,
   cookies,
@@ -50,6 +47,11 @@ export function AppKitProvider({
   children: ReactNode;
   cookies: string | null;
 }) {
+  if (!hasProjectId) {
+    return (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+  }
   const initialState = cookieToInitialState(wagmiAdapter.wagmiConfig, cookies);
   return (
     <WagmiProvider

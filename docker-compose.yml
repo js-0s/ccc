@@ -16,14 +16,18 @@ services:
   pgadmin:
     container_name: pgadmin4
     image: dpage/pgadmin4
-    restart: always
+    # ports:
+    #   - "1919:80"
+    depends_on:
+      - database
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_DEFAULT_EMAIL: admin@local.host
+      PGADMIN_DEFAULT_PASSWORD: admin
     networks:
       ccc-net:
         aliases:
           - pgadmin
+      extern-net:
 
   shell:
     build:

@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { signIn } from '@/server/auth';
+import { hasProjectId } from '@/lib/appkit/config';
 
 export function SignInButton({ session }) {
   if (session) {
     return (
       <>
-        <appkit-button />
+        {hasProjectId && <appkit-button />}
 
         <Link
           href={'/dashboard'}
@@ -20,7 +21,7 @@ export function SignInButton({ session }) {
   }
   return (
     <>
-      <appkit-button />
+      {hasProjectId && <appkit-button />}
 
       <form
         action={async () => {
