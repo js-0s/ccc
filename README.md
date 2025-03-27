@@ -443,5 +443,4 @@ tests, for scaling the backend-part should be extracted into a dedicated
 project and storybook needs to be integrated. The data-context pattern has
 drawbacks especially when it is used nested that may only be resolved with
 replacing the graphql-query engine. There should be more time invested to DRY
-some components, straighten the terminology of publicKey and address and
-separating repository-functionality.
+some components and separating repository-functionality.
