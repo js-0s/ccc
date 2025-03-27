@@ -39,11 +39,19 @@ const getKeplrFromWindow = async (): Promise<Keplr> => {
 export function Web3ContextProvider({ children }) {
   const [selectedKey, setSelectedKey] = useState<string | undefined>();
   const [chains, setChains] = useState<[ChainType]>(hardcodedChains);
+  const [lastChainId, setLastChainId] = useState<string | undefined>();
   const alert = useAlert();
-  const changeHandler = useCallback(() => {
+  const changeHandler = useCallback(async () => {
     // reset/requery any keys and states. user changed the wallet in the ui
     setSelectedKey(undefined);
-  }, []);
+    try {
+      const keplr = await getKeplrFromWindow();
+      const key = await keplr.getKey(lastChainId);
+      setSelectedKey(key.bech32Address);
+    } catch {
+      // keep key undefined
+    }
+  }, [setSelectedKey, lastChainId]);
   useEffect(() => {
     window.addEventListener('keplr_keystorechange', changeHandler);
     return () => {
@@ -99,6 +107,7 @@ export function Web3ContextProvider({ children }) {
       const keplr = await getKeplrFromWindow();
       const key = await keplr.getKey(chainId);
       setSelectedKey(key.bech32Address);
+      setLastChainId(chainId);
       return key.bech32Address;
     } catch (error: unknown) {
       console.error('context/web3/selectChain:', { error });
@@ -107,6 +116,7 @@ export function Web3ContextProvider({ children }) {
   }, []);
   const signMessage = useCallback(
     async (chainId: string, address: string, message: string) => {
+      setLastChainId(chainId);
       try {
         const keplr = await getKeplrFromWindow();
         const signedMessage = await keplr.signArbitrary(
@@ -126,6 +136,7 @@ export function Web3ContextProvider({ children }) {
     async (chain: ChainType, signDocument: unknown) => {
       try {
         const offlineSigner = window.getOfflineSigner(chain.chainId);
+        setLastChainId(chain.chainId);
         const accounts = await offlineSigner.getAccounts();
 
         // Sign the transaction using Keplr
@@ -162,6 +173,7 @@ export function Web3ContextProvider({ children }) {
       receiverPublicKey: string,
       message: string,
     ) => {
+      setLastChainId(chainId);
       try {
         const offlineSigner = window.getOfflineSigner(chainId);
         const accounts = await offlineSigner.getAccounts();
@@ -203,6 +215,7 @@ export function Web3ContextProvider({ children }) {
     [chains],
   );
   const getPublicKey = useCallback(async ({ chainId }: { chainId: string }) => {
+    setLastChainId(chainId);
     try {
       const offlineSigner = window.getOfflineSigner(chainId);
       const accounts = await offlineSigner.getAccounts();
@@ -225,6 +238,22 @@ export function Web3ContextProvider({ children }) {
       return a.chainName > b.chainName ? 1 : -1;
     });
   }, [chains]);
+  const isSelectedWallet = useCallback(
+    async (chainId: string, address: string) => {
+      setLastChainId(chainId);
+      try {
+        const keplr = await getKeplrFromWindow();
+        const key = await keplr.getKey(chainId);
+        if (key.bech32Address === address) {
+          return true;
+        }
+        return false;
+      } catch {
+        return false;
+      }
+    },
+    [selectedKey],
+  );
 
   const value = useMemo(() => {
     return {
@@ -238,6 +267,7 @@ export function Web3ContextProvider({ children }) {
       getPublicKey,
       chains,
       sortedChains,
+      isSelectedWallet,
     };
   }, [
     checkKeplr,
@@ -250,6 +280,7 @@ export function Web3ContextProvider({ children }) {
     getPublicKey,
     chains,
     sortedChains,
+    isSelectedWallet,
   ]);
 
   return <Web3Context.Provider value={value}>{children}</Web3Context.Provider>;
@@ -275,6 +306,7 @@ export const useWeb3Context = (): {
     receiverAddress: string,
   ) => Promise<string>;
   getPublicKey: ({ chainId: string }) => Promise<Uint8Array>;
+  isSelectedWallet: ({ chainId: string, address: string }) => Promise<boolean>;
   chains: [ChainType];
   sortedChains: [ChainType];
 } => useContext(Web3Context);
