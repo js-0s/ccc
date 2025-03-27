@@ -133,12 +133,12 @@ export function SignMessage({
   );
 
   useEffect(() => {
-    isSelectedWallet(chain?.chainId, chain?.publicKey)
+    isSelectedWallet(chain?.chainId, chain?.address)
       .then(selected => {
         setCorrectWallet(selected);
       })
       .catch(error => console.error);
-  }, [isSelectedWallet, chain?.publicKey, selectedKey]);
+  }, [isSelectedWallet, chain?.address, selectedKey]);
 
   return (
     <>
@@ -154,8 +154,8 @@ export function SignMessage({
           <DialogHeader>
             <DialogTitle>Sign Message</DialogTitle>
             <DialogDescription>
-              Sign message with chain {chain?.chainId}/{chain?.address}. This
-              is only useful to proof ownership of a wallet.
+              Sign message with chain {chain?.chainId}/{chain?.address}. This is
+              only useful to proof ownership of a wallet.
             </DialogDescription>
           </DialogHeader>
           {correctWallet ? (
@@ -195,7 +195,7 @@ export function SignMessage({
           ) : (
             <MutationError
               title="Wrong Wallet Account"
-              error={`You need to switch to the wallet that manages ${chain?.chainId} with address ${chain?.publicKey}`}
+              error={`You need to switch to the wallet that manages ${chain?.chainId} with address ${chain?.address}`}
             />
           )}
         </DialogContent>
