@@ -22,9 +22,9 @@ export const ChainType = objectType({
     });
     t.string('lastBalance', {
       description: 'Last known balance of the Chain Address.',
-      resolve(parent,args,context){
-        return `${parent.lastBalance}`
-      }
+      resolve(parent, args, context) {
+        return `${parent.lastBalance}`;
+      },
     });
   },
 });

@@ -1,6 +1,12 @@
 'use client';
 import { useAlert } from '@/components/alert';
-import { useState, useCallback, useMemo, type ReactNode } from 'react';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  type ReactNode,
+} from 'react';
 import { useWeb3Context } from '@/context';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -46,11 +52,14 @@ export function SignMessage({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { checkKeplr, signMessage } = useWeb3Context();
+  const { checkKeplr, signMessage, isSelectedWallet, selectedKey } =
+    useWeb3Context();
   const { user } = useUserData();
   const alert = useAlert();
 
   const [isUpdating, setIsUpdating] = useState(false);
+  const [correctWallet, setCorrectWallet] = useState(false);
+
   const chain = useMemo(() => {
     for (const chain of user.chains) {
       if (chain.id === chainId) {
@@ -123,6 +132,14 @@ export function SignMessage({
     [form, setIsUpdating, onOpenChange],
   );
 
+  useEffect(() => {
+    isSelectedWallet(chain?.chainId, chain?.publicKey)
+      .then(selected => {
+        setCorrectWallet(selected);
+      })
+      .catch(error => console.error);
+  }, [isSelectedWallet, chain?.publicKey, selectedKey]);
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChangeIntern}>
@@ -141,36 +158,46 @@ export function SignMessage({
               is only useful to proof ownership of a wallet.
             </DialogDescription>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="message"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel>Message</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} />
-                      </FormControl>
-                      <FormDescription>Your Message to Sign</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
+          {correctWallet ? (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>Message</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} />
+                        </FormControl>
+                        <FormDescription>Your Message to Sign</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
 
-              <MutationError
-                error={
-                  form.formState.errors?.root?.server?.type === 'error' &&
-                  form.formState.errors.root.server.message
-                }
-              />
-              <Button type="submit" disabled={isUpdating}>
-                {isUpdating && <Loader2 className="animate-spin" />}Sign
-              </Button>
-            </form>
-          </Form>
+                <MutationError
+                  error={
+                    form.formState.errors?.root?.server?.type === 'error' &&
+                    form.formState.errors.root.server.message
+                  }
+                />
+                <Button type="submit" disabled={isUpdating}>
+                  {isUpdating && <Loader2 className="animate-spin" />}Sign
+                </Button>
+              </form>
+            </Form>
+          ) : (
+            <MutationError
+              title="Wrong Wallet Account"
+              error={`You need to switch to the wallet that manages ${chain?.chainId} with address ${chain?.publicKey}`}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </>

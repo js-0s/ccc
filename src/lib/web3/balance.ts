@@ -39,7 +39,7 @@ export async function getBalance({
             .includes(balance.denom)
         ) {
           console.log(`Received bad balance denom ${balance.denom}`);
-          continue
+          continue;
         }
         sum += parseInt(balance.amount, 10); // ? BigInt
       }

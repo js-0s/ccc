@@ -83,7 +83,14 @@ export function SendToken({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { checkKeplr, signDocument, getPublicKey, chains } = useWeb3Context();
+  const {
+    checkKeplr,
+    signDocument,
+    getPublicKey,
+    chains,
+    isSelectedWallet,
+    selectedKey,
+  } = useWeb3Context();
   const {
     user,
     requestAccountNumberAndSequence,
@@ -93,6 +100,7 @@ export function SendToken({
   } = useUserData();
 
   const [isUpdating, setIsUpdating] = useState(false);
+  const [correctWallet, setCorrectWallet] = useState(false);
   const chain = useMemo(() => {
     for (const chain of user.chains) {
       if (chain.id === chainId) {
@@ -184,6 +192,13 @@ export function SendToken({
     }
     form.setValue('amount', formatter.format(convertedAmount));
   }, [form, watchModeCoin, coinDecimals, minDenomFormat, denomFormat]);
+  useEffect(() => {
+    isSelectedWallet(chain?.chainId, chain?.publicKey)
+      .then(selected => {
+        setCorrectWallet(selected);
+      })
+      .catch(error => console.error);
+  }, [isSelectedWallet, chain?.publicKey, selectedKey]);
 
   const onSubmit = useCallback(
     async (values: z.infer<typeof formSchema>) => {
@@ -301,100 +316,110 @@ export function SendToken({
               keplr-wallet and broadcast the signed transaction in the backend.
             </DialogDescription>
           </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="amount"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel>Amount</FormLabel>
+          {correctWallet ? (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>Amount</FormLabel>
+                        <FormControl>
+                          <InputCurrency
+                            type="currency"
+                            {...field}
+                            currencyFormat={
+                              watchModeCoin ? denomFormat : minDenomFormat
+                            }
+                            decimals={watchModeCoin ? coinDecimals : 0}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Amount ({watchModeCoin ? denom : minDenom})
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+                <FormField
+                  control={form.control}
+                  name="modeCoin"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>Format Amount</FormLabel>
+                        <FormDescription>
+                          Switch Input between {minDenom} and {denom}.
+                        </FormDescription>
+                      </div>
                       <FormControl>
-                        <InputCurrency
-                          type="currency"
-                          {...field}
-                          currencyFormat={
-                            watchModeCoin ? denomFormat : minDenomFormat
-                          }
-                          decimals={watchModeCoin ? coinDecimals : 0}
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <FormDescription>
-                        Amount ({watchModeCoin ? denom : minDenom})
-                      </FormDescription>
-                      <FormMessage />
                     </FormItem>
-                  );
-                }}
-              />
-              <FormField
-                control={form.control}
-                name="modeCoin"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                    <div className="space-y-0.5">
-                      <FormLabel>Format Amount</FormLabel>
-                      <FormDescription>
-                        Switch Input between {minDenom} and {denom}.
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="receiverAddress"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel>Receiver</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Public Key of the Receiver
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />{' '}
-              <FormField
-                control={form.control}
-                name="message"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel>Message</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        Message to store in wallet app
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-              <MutationError
-                error={
-                  form.formState.errors?.root?.server?.type === 'error' &&
-                  form.formState.errors.root.server.message
-                }
-              />
-              <Button type="submit" disabled={isUpdating}>
-                {isUpdating && <Loader2 className="animate-spin" />}Send
-              </Button>
-            </form>
-          </Form>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="receiverAddress"
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>Receiver</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Public Key of the Receiver
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />{' '}
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <FormLabel>Message</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          Message to store in wallet app
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+                <MutationError
+                  error={
+                    form.formState.errors?.root?.server?.type === 'error' &&
+                    form.formState.errors.root.server.message
+                  }
+                />
+                <Button type="submit" disabled={isUpdating}>
+                  {isUpdating && <Loader2 className="animate-spin" />}Send
+                </Button>
+              </form>
+            </Form>
+          ) : (
+            <MutationError
+              title="Wrong Wallet Account"
+              error={`You need to switch to the wallet that manages ${chain?.chainId} with address ${chain?.publicKey}`}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </>
